@@ -23,12 +23,12 @@ import NavBar from '@/components/common/navbar/NavBar'
 import scroll from '@/components/common/scroll/scroll.vue'
 import TabControl from '@/components/content/tabControl/TabControl.vue'
 import GoodsList from '@/components/content/goods/GoodsList.vue'
-import backTop from '@/components/content/backTop/backTop.vue'
+
 
 
 
 import {getHomeMultidata,getHomeGoods} from '@/network/home';
-import {debounce} from '@/common/utils.js'
+import {itemListenerMixin,backTopMixin} from '@/common/mixin'
 
 
 
@@ -43,8 +43,8 @@ import {debounce} from '@/common/utils.js'
         TabControl,
         GoodsList,
         scroll,
-      backTop,
     },
+    mixins:[itemListenerMixin,backTopMixin],
     data() {
       return {
         banners: [],
@@ -55,10 +55,9 @@ import {debounce} from '@/common/utils.js'
           'sell':{page:0,list:[]},
         },
         currentType:'pop',
-        isShowBackTop:false,
         tabOffsetTop:0,
         isTabFixed:false,
-        saveY:0
+        saveY:0,
       }
     },
     created() {
@@ -69,25 +68,21 @@ import {debounce} from '@/common/utils.js'
        this.getHomeGoods('new')
        this.getHomeGoods('sell')
     },
-      mounted(){
-        //获取tabControl的offsetTop
-        const refresh=debounce(this.$refs.scroll.refresh,5)
-  this.$bus.$on('itemImgLoad',()=>{
-         refresh()
-       })
-
-    },
     destroyed(){
      // console.log(1);
     },
     //进入
     activated(){
+      //  this.$refs.scroll.refresh()
       this.$refs.scroll.scrollTo(0,this.saveY,0)
       this.$refs.scroll.refresh()
     },
     //离开
     deactivated(){
+      //1.保存y值
     this.saveY=this.$refs.scroll.getScrollY()
+    //2.取消全局事件 的监听
+    this.$bus.$off('itemImgLoad',this.itemImgListener)
     },
     methods:{
       // 事件监听相关的方法
@@ -106,19 +101,16 @@ tabclick(index) {
         this.$refs.tabControl1.currentindex = index;
         this.$refs.tabControl2.currentindex = index;
       },
-      backClick(){
-//console.log(11);
-       this.$refs.scroll.scrollTo(0,0,1000)
-      },
       contentScroll(position){
         //1.判断backtop是否显示
-      this. isShowBackTop=(-position.y)>1000
+    this.listenShowBackTop(position)
       //2.决定tabcontrol是否吸顶
       this.isTabFixed=(-position.y)>this.tabOffsetTop
       },
       loadMore(){
 //console.log(11);
 this.getHomeGoods(this.currentType)
+// 完成加载更多数据
      this.$refs.scroll.finishPullUp()
       },
       swiperImageLoad(){

@@ -27,6 +27,7 @@ components:{
   methods:{
     titleclick(index){
 this.currentIndex=index
+this.$emit('titleClick',index)
     },
     backclick(){
       this.$router.back()

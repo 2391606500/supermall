@@ -1,20 +1,21 @@
 <template>
-  <div class="shop-info">
+  <div class="shop-info" v-if="Object.keys(shop).length!==0">
     <div class="shop-top">
-      <img :src="shop.logo">
+      <img :src="shop.shopLogo">
       <span class="title">{{shop.name}}</span>
     </div>
     <div class="shop-middle">
       <div class="shop-middle-item shop-middle-left">
         <div class="info-sells">
           <div class="sells-count">
-            {{shop.sells | sellCountFilter}}
+            <!-- 过滤器 -->
+            {{shop.cSells | sellCountFilter}}
           </div>
           <div class="sells-text">总销量</div>
         </div>
         <div class="info-goods">
           <div class="goods-count">
-            {{shop.goodsCount}}
+            {{shop.cGoods}}
           </div>
           <div class="goods-text">全部宝贝</div>
         </div>
@@ -46,11 +47,11 @@
         }
       }
     },
-    filters: {
-      sellCountFilter: function (value) {
+         filters: {
+      sellCountFilter(value) {
         if (value < 10000) return value;
-        return (value/10000).toFixed(1) + '万'
-      }
+        return (value / 10000).toFixed(1) + '万'
+    }
     }
 	}
 </script>
